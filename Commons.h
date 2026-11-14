@@ -103,6 +103,24 @@ constexpr int32_t kResoBufferSize = 2400;
 constexpr float kResoInfiniteFeedbackThreshold = 0.99f;
 constexpr float kResoInfiniteFeedbackLevel = 1.05f;
 
+// Resonator V/Oct mode (SHIFT + Resonator Feedback knob: left half = original
+// resonator, right half = V/Oct, the position in the right half trims the scale).
+constexpr float kDcBlockerR = 0.995f;          // DcBlockingFilter default, used in the poles
+constexpr float kVoctDcBlockerR = 0.9999f;     // poles' DC blocker in V/Oct mode: ~0.8 Hz corner
+constexpr float kVoctModeThreshold = 0.5f;     // ALT feedback knob value where V/Oct mode starts
+constexpr float kVoctTrimCenter = 0.75f;       // ALT feedback knob value for the nominal scale
+constexpr float kVoctTrimRange = 0.2f;         // ±5 % scale over the right half of the knob
+constexpr float kVoctRawAt0V = 0.30f;          // CV input reading at 0 V (see CvController)
+constexpr float kVoctSemisPerRaw = 12.f / 0.068f; // 10 V = 0.98, 0 V = 0.30
+constexpr float kVoctCenterNote = 48.f;        // Tune knob at noon = C3, as the original pole 0
+constexpr float kVoctKnobRange = 48.f;         // Tune knob spans C1..C5
+constexpr float kVoctPole1Interval = 19.f;     // octave + fifth
+constexpr float kVoctPole2Interval = 12.f;     // octave
+constexpr float kVoctMinNote = 16.f;           // ~20.6 Hz, the delay buffer holds 2400 samples
+constexpr float kVoctMaxNote = 103.f;          // ~3.1 kHz, the loop low-pass eats higher notes
+constexpr float kVoctJump = 0.25f;             // CV steps bigger than this (semitones) are taken at once
+constexpr float kVoctSlew = 0.05f;             // smaller changes (ADC noise, slow glides) are smoothed
+
 constexpr int32_t kEchoFadeSamples = 2400; // 50 ms @ audio rate
 constexpr int32_t kEchoMinLengthSamples = 480; // 10 ms @ audio rate
 constexpr int32_t kEchoMaxLengthSamples = 288000; // 6 seconds @ audio rate
@@ -164,6 +182,7 @@ struct PatchCtrls
     float resonatorFeedbackCvAmount;
     float resonatorFeedbackRndAmount;
     float resonatorDissonance;
+    float resonatorVoct; // ALT of the Feedback knob: < 0.5 original, >= 0.5 V/Oct with scale trim
 
     float echoVol;
     float echoRepeats;
@@ -202,6 +221,7 @@ struct PatchCvs
     float filterResonance;
     float resonatorTune;
     float resonatorFeedback;
+    float resonatorVoct; // V/Oct CV in semitones (0 V = 0)
     float echoRepeats;
     float echoDensity;
     float ambienceDecay;

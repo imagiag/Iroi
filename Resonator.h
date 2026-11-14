@@ -6,6 +6,7 @@
 #include "EnvFollower.h"
 #include "DcBlockingFilter.h"
 #include "Compressor.h"
+#include "VoctPitch.h"
 
 class Pole
 {
@@ -19,7 +20,7 @@ public:
         {
             delays_[i] = DelayLine::create(kResoBufferSize);
             lpfs_[i] = BiquadFilter::create(sampleRate_);
-            dc_[i] = DcBlockingFilter::create();
+            dc_[i] = DcBlockingFilter::create(kDcBlockerR);
             ef_[i] = EnvFollower::create();
         }
 
@@ -29,6 +30,13 @@ public:
         filter_ = 0;
         detune_ = 0;
         infinite_ = false;
+
+        for (size_t i = 0; i < 2; i++)
+        {
+            delayTimes_[i] = 0;
+            delayIncs_[i] = 0;
+            voctNotes_[i] = 0;
+        }
     }
     ~Pole()
     {
@@ -71,6 +79,32 @@ public:
         SetFreq();
     }
 
+    /**
+     * V/Oct mode: tune each channel to a MIDI note (at block rate). The delay
+     * glides to the new value over the next `samples` samples, compensating
+     * for the delay of the filters in the loop so the pole rings at the note.
+     * Call after SetFilter/SetReso so the compensation uses the current filter.
+     */
+    void SetVoctNotes(float leftNote, float rightNote, size_t samples)
+    {
+        voctNotes_[LEFT_CHANNEL] = leftNote;
+        voctNotes_[RIGHT_CHANNEL] = rightNote;
+        // Keep the low-pass where SetFreq would put it in the original mode
+        // (its tiny note-dependent offset is irrelevant at 5-10 kHz).
+        lf_ = rf_ = 0;
+        SetFreq();
+
+        float inc = 1.f / samples;
+        for (size_t i = 0; i < 2; i++)
+        {
+            dc_[i]->setTimeConstant(1.f / (1.f - kVoctDcBlockerR));
+            float target = voct::DelayForNote(voctNotes_[i], sampleRate_,
+                M2F(0) + filter_, reso_, kVoctDcBlockerR);
+            target = Clamp(target, 1.f, kResoBufferSize - 2);
+            delayIncs_[i] = (target - delayTimes_[i]) * inc;
+        }
+    }
+
     void SetFeedback(float feedback)
     {
         infinite_ = feedback > kResoInfiniteFeedbackThreshold;
@@ -103,6 +137,7 @@ public:
         }
 
         delays_[channel]->write(mix);
+        delayTimes_[channel] += delayIncs_[channel];
         outs_[channel] = delays_[channel]->read(delayTimes_[channel]);
 
         return out;
@@ -126,6 +161,8 @@ public:
         delays_[LEFT_CHANNEL]->write(leftMix);
         delays_[RIGHT_CHANNEL]->write(rightMix);
 
+        delayTimes_[LEFT_CHANNEL] += delayIncs_[LEFT_CHANNEL];
+        delayTimes_[RIGHT_CHANNEL] += delayIncs_[RIGHT_CHANNEL];
         outs_[LEFT_CHANNEL] = delays_[LEFT_CHANNEL]->read(delayTimes_[LEFT_CHANNEL]);
         outs_[RIGHT_CHANNEL] = delays_[RIGHT_CHANNEL]->read(delayTimes_[RIGHT_CHANNEL]);
     }
@@ -135,7 +172,8 @@ private:
     BiquadFilter *lpfs_[2];
     EnvFollower *ef_[2];
     DcBlockingFilter* dc_[2];
-    float delayTimes_[2], outs_[2];
+    float delayTimes_[2], delayIncs_[2], outs_[2];
+    float voctNotes_[2];
 
     float sampleRate_, msr_;
     float lf_, rf_;
@@ -160,6 +198,9 @@ private:
 
         delayTimes_[LEFT_CHANNEL] = Clamp(msr_ * Db2A(lf_), 0, kResoBufferSize);
         delayTimes_[RIGHT_CHANNEL] = Clamp(msr_ * Db2A(rf_), 0, kResoBufferSize);
+        delayIncs_[LEFT_CHANNEL] = delayIncs_[RIGHT_CHANNEL] = 0;
+        dc_[LEFT_CHANNEL]->setTimeConstant(1.f / (1.f - kDcBlockerR));
+        dc_[RIGHT_CHANNEL]->setTimeConstant(1.f / (1.f - kDcBlockerR));
 
         SetFreq();
     }
@@ -190,6 +231,7 @@ private:
     float tune_;
     float oldTuning_;
     int ranges_[3];
+    bool voct_;
 
     int task_;
 
@@ -269,6 +311,39 @@ private:
     }
     */
 
+    // Fold a note into the range a pole can ring at, keeping its pitch class.
+    static float FoldNote(float note)
+    {
+        while (note < kVoctMinNote)
+        {
+            note += 12.f;
+        }
+        while (note > kVoctMaxNote)
+        {
+            note -= 12.f;
+        }
+
+        return note;
+    }
+
+    /**
+     * V/Oct mode: the three poles keep fixed intervals above the played note
+     * (pole 0 on it, pole 2 an octave up, pole 1 an octave and a fifth up,
+     * close to the original chord with Tune at noon) so the chord transposes
+     * as a whole. Dissonance spreads each pole's channels apart, as in the
+     * original mode (±2, ±4 and ±6 semitones at full).
+     */
+    void SetVoctNotes(float note, float dissonance, size_t samples)
+    {
+        float d0 = dissonance * 2.f;
+        float d1 = dissonance * 4.f;
+        float d2 = dissonance * 6.f;
+
+        poles_[0]->SetVoctNotes(FoldNote(note - d0), FoldNote(note + d0), samples);
+        poles_[1]->SetVoctNotes(FoldNote(note + kVoctPole1Interval - d1), FoldNote(note + kVoctPole1Interval + d1), samples);
+        poles_[2]->SetVoctNotes(FoldNote(note + kVoctPole2Interval - d2), FoldNote(note + kVoctPole2Interval + d2), samples);
+    }
+
     void SetDissonance(float value)
     {
         ranges_[0] = Map(value, 0.f, 1.f, 24, 16);
@@ -308,6 +383,9 @@ public:
         amp_ = 1.f;
         range_ = 1.f;
         task_ = 0;
+        voct_ = false;
+        oldTuning_ = 0;
+        dryWet_ = 0;
 
         SetDissonance(0);
         SetTune(0);
@@ -347,19 +425,40 @@ public:
         FloatArray leftOut = output.getSamples(LEFT_CHANNEL);
         FloatArray rightOut = output.getSamples(RIGHT_CHANNEL);
 
-        SetDissonance(patchCtrls_->resonatorDissonance);
+        voct_ = patchCtrls_->resonatorVoct >= kVoctModeThreshold;
 
-        float t = Modulate(patchCtrls_->resonatorTune, patchCtrls_->resonatorTuneModAmount, patchState_->modValue, patchCtrls_->resonatorTuneCvAmount, patchCvs_->resonatorTune, -1.f, 1.f, patchState_->modAttenuverters, patchState_->cvAttenuverters);
+        // In V/Oct mode the shared resonator CV input is the pitch, so it
+        // doesn't modulate Tune (as a knob offset) nor Feedback.
+        float tuneCvAmount = voct_ ? 0.f : patchCtrls_->resonatorTuneCvAmount;
+        float feedbackCvAmount = voct_ ? 0.f : patchCtrls_->resonatorFeedbackCvAmount;
+
+        if (!voct_)
+        {
+            SetDissonance(patchCtrls_->resonatorDissonance);
+        }
+
+        float t = Modulate(patchCtrls_->resonatorTune, patchCtrls_->resonatorTuneModAmount, patchState_->modValue, tuneCvAmount, patchCvs_->resonatorTune, -1.f, 1.f, patchState_->modAttenuverters, voct_ ? false : patchState_->cvAttenuverters);
         ParameterInterpolator tuningParam(&oldTuning_, t, size);
 
-        float f = Modulate(patchCtrls_->resonatorFeedback, patchCtrls_->resonatorFeedbackModAmount, patchState_->modValue, patchCtrls_->resonatorFeedbackCvAmount, patchCvs_->resonatorFeedback, -1.f, 1.f, patchState_->modAttenuverters, patchState_->cvAttenuverters);
+        float f = Modulate(patchCtrls_->resonatorFeedback, patchCtrls_->resonatorFeedbackModAmount, patchState_->modValue, feedbackCvAmount, patchCvs_->resonatorFeedback, -1.f, 1.f, patchState_->modAttenuverters, voct_ ? false : patchState_->cvAttenuverters);
         SetFeedback(f);
+
+        if (voct_)
+        {
+            // Tune knob: C1..C5 as in the original mode (C3 at noon), plus the CV in semitones.
+            float note = kVoctCenterNote + (t - 0.5f) * kVoctKnobRange + patchCvs_->resonatorVoct;
+            SetVoctNotes(note, patchCtrls_->resonatorDissonance, size);
+        }
 
         ParameterInterpolator volParam = ParameterInterpolator(&dryWet_, patchCtrls_->resonatorVol, size);
 
         for (size_t i = 0; i < size; i++)
         {
-            SetTune(tuningParam.Next());
+            float tune = tuningParam.Next();
+            if (!voct_)
+            {
+                SetTune(tune);
+            }
 
             float lIn = Clamp(leftIn[i], -3.f, 3.f);
             float rIn = Clamp(rightIn[i], -3.f, 3.f);

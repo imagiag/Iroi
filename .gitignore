@@ -1,0 +1,8 @@
+.DS_Store
+
+# build outputs
+build/
+test/out/
+
+# local tool settings
+.claude/

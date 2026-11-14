@@ -57,6 +57,7 @@ private:
         undoRedo_, doRandomSlew_, startup_, mapActive_, mapButtonWasOn_;
 
     float randomize_, randomSlewInc_, cutoff_, cutoffCv_, cutoffPot_;
+    float voctCv_;
 
     FuncMode selectedMapTarget_;
 
@@ -92,6 +93,7 @@ public:
         cutoffCv_ = 0; 
         cutoffPot_ = 0;
         randomSlewInc_ = 0;
+        voctCv_ = 0;
 
         hwRevision_ = 0;
 
@@ -114,6 +116,8 @@ public:
         patchCtrls_->filterPosition = 0.f;
         patchCtrls_->modType = 0.f;
         patchCtrls_->resonatorDissonance = 0.f;
+        patchCtrls_->resonatorVoct = 0.f;
+        patchCvs_->resonatorVoct = 0.f;
         patchCtrls_->echoFilter = 0.5f;
         patchCtrls_->ambienceAutoPan = 0.f;
 
@@ -170,7 +174,7 @@ public:
             &patchCtrls_->resonatorTuneRndAmount, 0.005f);
         knobs_[PARAM_KNOB_RESONATOR_FEEDBACK] =
             KnobController::create(patchState_, &patchCtrls_->resonatorFeedback,
-                NULL, &patchCtrls_->resonatorFeedbackModAmount,
+                &patchCtrls_->resonatorVoct, &patchCtrls_->resonatorFeedbackModAmount,
                 &patchCtrls_->resonatorFeedbackCvAmount,
                 &patchCtrls_->resonatorFeedbackRndAmount);
 
@@ -355,6 +359,8 @@ public:
             knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(cfg[3] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Filter mode
             knobs_[PARAM_KNOB_MOD_SPEED]->SetValue(cfg[4] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Mod type
             knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(cfg[5] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Reso dissonance
+            // Spare slot: 0 in files saved by the stock patch = original resonator.
+            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(cfg[6] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Reso V/Oct mode + trim
         }
         Resource::destroy(resource);
     }
@@ -448,6 +454,7 @@ public:
             values[3] = patchCtrls_->filterMode;
             values[4] = patchCtrls_->modType;
             values[5] = patchCtrls_->resonatorDissonance;
+            values[6] = patchCtrls_->resonatorVoct;
             break;
         case FUNC_MODE_MOD:
             values[0] = patchCtrls_->ambienceDecayModAmount;
@@ -602,6 +609,30 @@ public:
             filterPositionTrigger_.Process(patchState_->filterPositionFlag)) {
             leds_[LED_SHIFT]->Blink(2, true);
         }
+    }
+
+    // Resonator V/Oct CV, in semitones. Read straight from the input rather
+    // than through CvController (whose smoothing step and dead zone around
+    // 0 V would put notes out of tune). Called at block rate.
+    void HandleVoct() {
+        if (patchCtrls_->resonatorVoct < kVoctModeThreshold) {
+            patchCvs_->resonatorVoct = 0;
+            return;
+        }
+
+        float raw = getInitialisingPatchProcessor()->patch->getParameterValue(paramCvMap[PARAM_CV_RESONATOR_TUNE]);
+        float trim = 1.f + (patchCtrls_->resonatorVoct - kVoctTrimCenter) * kVoctTrimRange;
+        float semis = (raw - kVoctRawAt0V) * kVoctSemisPerRaw * trim;
+
+        // Take note changes at once, smooth the rest.
+        float interval = semis - voctCv_;
+        if (interval < -kVoctJump || interval > kVoctJump) {
+            voctCv_ = semis;
+        }
+        else {
+            voctCv_ += kVoctSlew * interval;
+        }
+        patchCvs_->resonatorVoct = voctCv_;
     }
 
     void HandleCatchUp() {
@@ -840,6 +871,8 @@ public:
         }
 
         patchState_->modActive = patchCtrls_->modLevel > 0.1f;
+
+        HandleVoct();
 
         float cutoffNote = 127.f * patchCvs_->filterCutoff * patchCtrls_->filterCutoffCvAmount;
         float interval = cutoffNote - cutoffCv_;
