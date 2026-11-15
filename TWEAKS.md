@@ -16,10 +16,12 @@ that modulates Resonator Tune/Feedback).
   Then long-press MAP to save as usual, or it's back to original at the next power-up.
 - **Scale trim:** where the knob sits in the right half fine-tunes the volts-per-octave
   scale, ±5 %. 3 o'clock is the nominal scale. To set it, play C2 then C4 and turn
-  until the two are exactly two octaves apart. Only needed once per module.
-- **Tune knob:** transposes, C1 to C5 with 0 V (C3 at noon), as in the original mode.
+  until the two are exactly two octaves apart. Only needed once per module. (On the first
+  module tested, 3 o'clock was already right: an octave of CV gave an octave within a few cents.)
+- **Tune knob:** transposes, C0 to C4 with 0 V, so 0 V = C2 (65.4 Hz) at noon (v4; v1–v3 had C3 at noon).
+  The lowest note of the chord is the one at that pitch; a tuner may lock onto the higher ones.
 - **Chord:** the three poles keep fixed intervals above the note (root, octave,
-  octave + fifth, close to the original chord with Tune at noon), so the whole chord
+  octave + fifth, like the original chord at noon but an octave lower), so the whole chord
   transposes. **Dissonance** (SHIFT + Tune) still spreads each pole's left/right
   channels apart, as in the original mode.
 - **What changes in V/Oct mode:** the CV no longer modulates Feedback (it's the pitch

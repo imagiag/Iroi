@@ -112,8 +112,8 @@ constexpr float kVoctTrimCenter = 0.75f;       // ALT feedback knob value for th
 constexpr float kVoctTrimRange = 0.2f;         // ±5 % scale over the right half of the knob
 constexpr float kVoctRawAt0V = 0.30f;          // CV input reading at 0 V (see CvController)
 constexpr float kVoctSemisPerRaw = 12.f / 0.068f; // 10 V = 0.98, 0 V = 0.30
-constexpr float kVoctCenterNote = 48.f;        // Tune knob at noon = C3, as the original pole 0
-constexpr float kVoctKnobRange = 48.f;         // Tune knob spans C1..C5
+constexpr float kVoctCenterNote = 36.f;        // Tune knob at noon + 0 V = C2 (65.4 Hz)
+constexpr float kVoctKnobRange = 48.f;         // Tune knob spans C0..C4 at 0 V
 constexpr float kVoctPole1Interval = 19.f;     // octave + fifth
 constexpr float kVoctPole2Interval = 12.f;     // octave
 constexpr float kVoctMinNote = 16.f;           // ~20.6 Hz, the delay buffer holds 2400 samples

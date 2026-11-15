@@ -445,7 +445,7 @@ public:
 
         if (voct_)
         {
-            // Tune knob: C1..C5 as in the original mode (C3 at noon), plus the CV in semitones.
+            // Tune knob: C0..C4 at 0 V (C2 at noon), plus the CV in semitones.
             float note = kVoctCenterNote + (t - 0.5f) * kVoctKnobRange + patchCvs_->resonatorVoct;
             SetVoctNotes(note, patchCtrls_->resonatorDissonance, size);
         }
