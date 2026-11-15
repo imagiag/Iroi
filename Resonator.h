@@ -445,7 +445,7 @@ public:
 
         if (voct_)
         {
-            // Tune knob: ±1 octave around C2 (at 0 V), fine near noon and coarser
+            // Tune knob: ±1.5 octaves around C2 (at 0 V), fine near noon and coarser
             // towards the ends, plus the CV in semitones.
             float u = 2.f * (t - 0.5f);
             CONSTRAIN(u, -1.f, 1.f);

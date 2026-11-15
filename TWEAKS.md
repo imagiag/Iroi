@@ -18,9 +18,10 @@ that modulates Resonator Tune/Feedback).
   scale, ±5 %. 3 o'clock is the nominal scale. To set it, play C2 then C4 and turn
   until the two are exactly two octaves apart. Only needed once per module. (On the first
   module tested, 3 o'clock was already right: an octave of CV gave an octave within a few cents.)
-- **Tune knob:** 0 V = C2 (65.4 Hz) with Tune at noon. From v5 the knob reaches one
-  octave down and up at its ends (C1 to C3 at 0 V), and it's finer near noon, about 25°
-  per semitone, so small tuning moves are easy. (v4: C0 to C4, linear; v1–v3: C3 at noon.)
+- **Tune knob:** 0 V = C2 (65.4 Hz) with Tune at noon. From v6 the knob reaches an
+  octave and a half down and up at its ends (F#0 to F#3 at 0 V), with C1 and C3 at about
+  8 and 4 o'clock so you can overshoot. It's finer near noon, about 17° per semitone.
+  (v5: ±1 octave; v4: C0 to C4, linear; v1–v3: C3 at noon.)
   The lowest note of the chord is the one at that pitch; a tuner may lock onto the higher ones.
 - **Chord:** the three poles keep fixed intervals above the note (root, octave,
   octave + fifth, like the original chord at noon but an octave lower), so the whole chord
