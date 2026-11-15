@@ -110,11 +110,8 @@ constexpr float kVoctDcBlockerR = 0.9999f;     // poles' DC blocker in V/Oct mod
 constexpr float kVoctModeThreshold = 0.5f;     // ALT feedback knob value where V/Oct mode starts
 constexpr float kVoctTrimCenter = 0.75f;       // ALT feedback knob value for the nominal scale
 constexpr float kVoctTrimRange = 0.2f;         // ±5 % scale over the right half of the knob
-// The CV inputs read inverted on the module (higher voltage = lower reading,
-// the stock filter cutoff CV closes the filter too), so V/Oct uses the mirror
-// of CvController's comment: 0 V ~ 0.70, 10 V ~ 0.02.
-constexpr float kVoctRawAt0V = 0.70f;          // CV input reading at 0 V
-constexpr float kVoctSemisPerRaw = -12.f / 0.068f; // negative: the reading falls as the voltage rises
+constexpr float kVoctRawAt0V = 0.30f;          // CV input reading at 0 V (see CvController)
+constexpr float kVoctSemisPerRaw = 12.f / 0.068f; // 10 V = 0.98, 0 V = 0.30
 constexpr float kVoctCenterNote = 48.f;        // Tune knob at noon = C3, as the original pole 0
 constexpr float kVoctKnobRange = 48.f;         // Tune knob spans C1..C5
 constexpr float kVoctPole1Interval = 19.f;     // octave + fifth
