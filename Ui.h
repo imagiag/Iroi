@@ -353,14 +353,14 @@ public:
         Resource* resource = Resource::load(PATCH_SETTINGS_NAME ".alt");
         if (resource != NULL) {
             int16_t* cfg = (int16_t*)resource->getData();
-            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(cfg[0] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Ambience auto-pan
-            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(cfg[1] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Echo filter
-            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(cfg[2] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Filter position
-            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(cfg[3] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Filter mode
-            knobs_[PARAM_KNOB_MOD_SPEED]->SetValue(cfg[4] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Mod type
-            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(cfg[5] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Reso dissonance
+            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(DecodeSetting(cfg[0]), LockableParamName::PARAM_LOCKABLE_ALT); // Ambience auto-pan
+            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(DecodeSetting(cfg[1]), LockableParamName::PARAM_LOCKABLE_ALT); // Echo filter
+            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(DecodeSetting(cfg[2]), LockableParamName::PARAM_LOCKABLE_ALT); // Filter position
+            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(DecodeSetting(cfg[3]), LockableParamName::PARAM_LOCKABLE_ALT); // Filter mode
+            knobs_[PARAM_KNOB_MOD_SPEED]->SetValue(DecodeSetting(cfg[4]), LockableParamName::PARAM_LOCKABLE_ALT); // Mod type
+            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(DecodeSetting(cfg[5]), LockableParamName::PARAM_LOCKABLE_ALT); // Reso dissonance
             // Spare slot: 0 in files saved by the stock patch = original resonator.
-            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(cfg[6] / 8192.f, LockableParamName::PARAM_LOCKABLE_ALT); // Reso V/Oct mode + trim
+            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(DecodeSetting(cfg[6]), LockableParamName::PARAM_LOCKABLE_ALT); // Reso V/Oct mode + trim
         }
         Resource::destroy(resource);
     }
@@ -369,14 +369,14 @@ public:
         Resource* resource = Resource::load(PATCH_SETTINGS_NAME ".mod");
         if (resource) {
             int16_t* cfg = (int16_t*)resource->getData();
-            knobs_[PARAM_KNOB_AMBIENCE_DECAY]->SetValue(cfg[0] / 8192.f, LockableParamName::PARAM_LOCKABLE_MOD); // Ambience decay mod amount
-            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(cfg[1] / 8192.f, LockableParamName::PARAM_LOCKABLE_MOD); // Ambience spacetime mod amount
-            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(cfg[2] / 8192.f, LockableParamName::PARAM_LOCKABLE_MOD); // Echo density mod amount
-            knobs_[PARAM_KNOB_ECHO_REPEATS]->SetValue(cfg[3] / 8192.f, LockableParamName::PARAM_LOCKABLE_MOD); // Echo repeats mod amount
-            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(cfg[4] / 8192.f, LockableParamName::PARAM_LOCKABLE_MOD); // Filter cutoff mod amount
-            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(cfg[5] / 8192.f, LockableParamName::PARAM_LOCKABLE_MOD); // Filter resonance mod amount
-            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(cfg[6] / 8192.f, LockableParamName::PARAM_LOCKABLE_MOD); // Resonator feedback mod amount
-            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(cfg[7] / 8192.f, LockableParamName::PARAM_LOCKABLE_MOD); // Resonator tune mod amount
+            knobs_[PARAM_KNOB_AMBIENCE_DECAY]->SetValue(DecodeSetting(cfg[0]), LockableParamName::PARAM_LOCKABLE_MOD); // Ambience decay mod amount
+            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(DecodeSetting(cfg[1]), LockableParamName::PARAM_LOCKABLE_MOD); // Ambience spacetime mod amount
+            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(DecodeSetting(cfg[2]), LockableParamName::PARAM_LOCKABLE_MOD); // Echo density mod amount
+            knobs_[PARAM_KNOB_ECHO_REPEATS]->SetValue(DecodeSetting(cfg[3]), LockableParamName::PARAM_LOCKABLE_MOD); // Echo repeats mod amount
+            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(DecodeSetting(cfg[4]), LockableParamName::PARAM_LOCKABLE_MOD); // Filter cutoff mod amount
+            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(DecodeSetting(cfg[5]), LockableParamName::PARAM_LOCKABLE_MOD); // Filter resonance mod amount
+            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(DecodeSetting(cfg[6]), LockableParamName::PARAM_LOCKABLE_MOD); // Resonator feedback mod amount
+            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(DecodeSetting(cfg[7]), LockableParamName::PARAM_LOCKABLE_MOD); // Resonator tune mod amount
         }
         Resource::destroy(resource);
     }
@@ -385,14 +385,14 @@ public:
         Resource* resource = Resource::load(PATCH_SETTINGS_NAME ".cv");
         if (resource) {
             int16_t* cfg = (int16_t*)resource->getData();
-            knobs_[PARAM_KNOB_AMBIENCE_DECAY]->SetValue(cfg[0] / 8192.f, LockableParamName::PARAM_LOCKABLE_CV); // Ambience decay cv amount
-            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(cfg[1] / 8192.f, LockableParamName::PARAM_LOCKABLE_CV); // Ambience spacetime cv amount
-            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(cfg[2] / 8192.f, LockableParamName::PARAM_LOCKABLE_CV); // Echo density cv amount
-            knobs_[PARAM_KNOB_ECHO_REPEATS]->SetValue(cfg[3] / 8192.f, LockableParamName::PARAM_LOCKABLE_CV); // Echo repeats cv amount
-            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(cfg[4] / 8192.f, LockableParamName::PARAM_LOCKABLE_CV); // Filter cutoff cv amount
-            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(cfg[5] / 8192.f, LockableParamName::PARAM_LOCKABLE_CV); // Filter resonance cv amount
-            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(cfg[6] / 8192.f, LockableParamName::PARAM_LOCKABLE_CV); // Resonator feedback cv amount
-            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(cfg[7] / 8192.f, LockableParamName::PARAM_LOCKABLE_CV); // Resonator tune cv amount
+            knobs_[PARAM_KNOB_AMBIENCE_DECAY]->SetValue(DecodeSetting(cfg[0]), LockableParamName::PARAM_LOCKABLE_CV); // Ambience decay cv amount
+            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(DecodeSetting(cfg[1]), LockableParamName::PARAM_LOCKABLE_CV); // Ambience spacetime cv amount
+            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(DecodeSetting(cfg[2]), LockableParamName::PARAM_LOCKABLE_CV); // Echo density cv amount
+            knobs_[PARAM_KNOB_ECHO_REPEATS]->SetValue(DecodeSetting(cfg[3]), LockableParamName::PARAM_LOCKABLE_CV); // Echo repeats cv amount
+            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(DecodeSetting(cfg[4]), LockableParamName::PARAM_LOCKABLE_CV); // Filter cutoff cv amount
+            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(DecodeSetting(cfg[5]), LockableParamName::PARAM_LOCKABLE_CV); // Filter resonance cv amount
+            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(DecodeSetting(cfg[6]), LockableParamName::PARAM_LOCKABLE_CV); // Resonator feedback cv amount
+            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(DecodeSetting(cfg[7]), LockableParamName::PARAM_LOCKABLE_CV); // Resonator tune cv amount
         }
         Resource::destroy(resource);
     }
@@ -401,16 +401,16 @@ public:
         Resource* resource = Resource::load(PATCH_SETTINGS_NAME ".rnd");
         if (resource) {
             int16_t* cfg = (int16_t*)resource->getData();
-            knobs_[PARAM_KNOB_AMBIENCE_DECAY]->SetValue(cfg[0] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Ambience decay random amount
-            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(cfg[1] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Ambience spacetime random amount
-            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(cfg[2] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Echo density random amount
-            knobs_[PARAM_KNOB_ECHO_REPEATS]->SetValue(cfg[3] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Echo repeats random amount
-            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(cfg[4] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Filter cutoff random amount
-            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(cfg[5] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Filter resonance random amount
-            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(cfg[6] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Resonator feedback random amount
-            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(cfg[7] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Resonator tune random amount
-            knobs_[PARAM_KNOB_MOD_LEVEL]->SetValue(cfg[8] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Modulation level random amount
-            knobs_[PARAM_KNOB_MOD_SPEED]->SetValue(cfg[9] / 8192.f, LockableParamName::PARAM_LOCKABLE_RND); // Modulation speed random amount
+            knobs_[PARAM_KNOB_AMBIENCE_DECAY]->SetValue(DecodeSetting(cfg[0]), LockableParamName::PARAM_LOCKABLE_RND); // Ambience decay random amount
+            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(DecodeSetting(cfg[1]), LockableParamName::PARAM_LOCKABLE_RND); // Ambience spacetime random amount
+            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(DecodeSetting(cfg[2]), LockableParamName::PARAM_LOCKABLE_RND); // Echo density random amount
+            knobs_[PARAM_KNOB_ECHO_REPEATS]->SetValue(DecodeSetting(cfg[3]), LockableParamName::PARAM_LOCKABLE_RND); // Echo repeats random amount
+            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(DecodeSetting(cfg[4]), LockableParamName::PARAM_LOCKABLE_RND); // Filter cutoff random amount
+            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(DecodeSetting(cfg[5]), LockableParamName::PARAM_LOCKABLE_RND); // Filter resonance random amount
+            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(DecodeSetting(cfg[6]), LockableParamName::PARAM_LOCKABLE_RND); // Resonator feedback random amount
+            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(DecodeSetting(cfg[7]), LockableParamName::PARAM_LOCKABLE_RND); // Resonator tune random amount
+            knobs_[PARAM_KNOB_MOD_LEVEL]->SetValue(DecodeSetting(cfg[8]), LockableParamName::PARAM_LOCKABLE_RND); // Modulation level random amount
+            knobs_[PARAM_KNOB_MOD_SPEED]->SetValue(DecodeSetting(cfg[9]), LockableParamName::PARAM_LOCKABLE_RND); // Modulation speed random amount
         }
         Resource::destroy(resource);
     }
@@ -419,16 +419,16 @@ public:
         Resource* resource = Resource::load(PATCH_SETTINGS_NAME ".prm");
         if (resource) {
             int16_t* cfg = (int16_t*)resource->getData();
-            knobs_[PARAM_KNOB_AMBIENCE_DECAY]->SetValue(cfg[0] / 8192.f); // Ambience decay
-            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(cfg[1] / 8192.f); // Ambience spacetime
-            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(cfg[2] / 8192.f); // Echo density
-            knobs_[PARAM_KNOB_ECHO_REPEATS]->SetValue(cfg[3] / 8192.f); // Echo repeats
-            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(cfg[4] / 8192.f); // Filter cutoff
-            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(cfg[5] / 8192.f); // Filter resonance
-            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(cfg[6] / 8192.f); // Resonator feedback
-            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(cfg[7] / 8192.f); // Resonator tune
-            knobs_[PARAM_KNOB_MOD_LEVEL]->SetValue(cfg[8] / 8192.f); // Mod level
-            knobs_[PARAM_KNOB_MOD_SPEED]->SetValue(cfg[9] / 8192.f); // Mod speed
+            knobs_[PARAM_KNOB_AMBIENCE_DECAY]->SetValue(DecodeSetting(cfg[0])); // Ambience decay
+            knobs_[PARAM_KNOB_AMBIENCE_SPACETIME]->SetValue(DecodeSetting(cfg[1])); // Ambience spacetime
+            knobs_[PARAM_KNOB_ECHO_DENSITY]->SetValue(DecodeSetting(cfg[2])); // Echo density
+            knobs_[PARAM_KNOB_ECHO_REPEATS]->SetValue(DecodeSetting(cfg[3])); // Echo repeats
+            knobs_[PARAM_KNOB_FILTER_CUTOFF]->SetValue(DecodeSetting(cfg[4])); // Filter cutoff
+            knobs_[PARAM_KNOB_FILTER_RESONANCE]->SetValue(DecodeSetting(cfg[5])); // Filter resonance
+            knobs_[PARAM_KNOB_RESONATOR_FEEDBACK]->SetValue(DecodeSetting(cfg[6])); // Resonator feedback
+            knobs_[PARAM_KNOB_RESONATOR_TUNE]->SetValue(DecodeSetting(cfg[7])); // Resonator tune
+            knobs_[PARAM_KNOB_MOD_LEVEL]->SetValue(DecodeSetting(cfg[8])); // Mod level
+            knobs_[PARAM_KNOB_MOD_SPEED]->SetValue(DecodeSetting(cfg[9])); // Mod speed
         }
         Resource::destroy(resource);
     }
@@ -513,7 +513,7 @@ public:
         for (size_t i = 0; i < MAX_PATCH_SETTINGS; i++) 
         {
             // Convert to 14-bit (16384) signed int.
-            int16_t value = rintf(values[i] * 8192);
+            int16_t value = EncodeSetting(values[i]);
             // Send the parameter's value.
             getInitialisingPatchProcessor()->patch->sendMidi(MidiMessage::pb(i, value));
         }

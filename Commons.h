@@ -113,13 +113,30 @@ constexpr float kVoctTrimRange = 0.2f;         // ±5 % scale over the right hal
 constexpr float kVoctRawAt0V = 0.30f;          // CV input reading at 0 V (see CvController)
 constexpr float kVoctSemisPerRaw = 12.f / 0.068f; // 10 V = 0.98, 0 V = 0.30
 constexpr float kVoctCenterNote = 36.f;        // Tune knob at noon + 0 V = C2 (65.4 Hz)
-constexpr float kVoctKnobRange = 48.f;         // Tune knob spans C0..C4 at 0 V
+constexpr float kVoctKnobRange = 12.f;         // Tune knob reaches ±1 octave at the ends (C1..C3 at 0 V)
 constexpr float kVoctPole1Interval = 19.f;     // octave + fifth
 constexpr float kVoctPole2Interval = 12.f;     // octave
 constexpr float kVoctMinNote = 16.f;           // ~20.6 Hz, the delay buffer holds 2400 samples
 constexpr float kVoctMaxNote = 103.f;          // ~3.1 kHz, the loop low-pass eats higher notes
 constexpr float kVoctJump = 0.25f;             // CV steps bigger than this (semitones) are taken at once
 constexpr float kVoctSlew = 0.05f;             // smaller changes (ADC noise, slow glides) are smoothed
+
+// Saved settings travel as MIDI pitch bend, which holds -8192..+8191. The stock
+// patch stored 1.0 as +8192, which wraps to -8192 and loads back as -1.0: a CV
+// amount at its default (1.0, also what clearing the map sets) came back
+// inverted after every save. Settings are never negative, so -8192 in an
+// existing file is read as 1.0, and new saves stop at +8191.
+inline int16_t EncodeSetting(float value)
+{
+    float v = rintf(value * 8192.f);
+    if (v > 8191.f) v = 8191.f;
+    if (v < -8192.f) v = -8192.f;
+    return (int16_t)v;
+}
+inline float DecodeSetting(int16_t value)
+{
+    return value == -8192 ? 1.f : value / 8192.f;
+}
 
 constexpr int32_t kEchoFadeSamples = 2400; // 50 ms @ audio rate
 constexpr int32_t kEchoMinLengthSamples = 480; // 10 ms @ audio rate

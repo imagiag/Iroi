@@ -18,7 +18,9 @@ that modulates Resonator Tune/Feedback).
   scale, ±5 %. 3 o'clock is the nominal scale. To set it, play C2 then C4 and turn
   until the two are exactly two octaves apart. Only needed once per module. (On the first
   module tested, 3 o'clock was already right: an octave of CV gave an octave within a few cents.)
-- **Tune knob:** transposes, C0 to C4 with 0 V, so 0 V = C2 (65.4 Hz) at noon (v4; v1–v3 had C3 at noon).
+- **Tune knob:** 0 V = C2 (65.4 Hz) with Tune at noon. From v5 the knob reaches one
+  octave down and up at its ends (C1 to C3 at 0 V), and it's finer near noon, about 25°
+  per semitone, so small tuning moves are easy. (v4: C0 to C4, linear; v1–v3: C3 at noon.)
   The lowest note of the chord is the one at that pitch; a tuner may lock onto the higher ones.
 - **Chord:** the three poles keep fixed intervals above the note (root, octave,
   octave + fifth, like the original chord at noon but an octave lower), so the whole chord
@@ -27,10 +29,13 @@ that modulates Resonator Tune/Feedback).
 - **What changes in V/Oct mode:** the CV no longer modulates Feedback (it's the pitch
   now), and the CV amounts for Tune/Feedback are ignored. MOD and random still work
   on Tune. Feedback, Volume and everything else behave as before.
-- **If a CV works upside down** (in any mode): check the CV mapping. A negative CV amount
-  stored in the saved settings inverts that CV, and the stock patch loads it as is. Clearing
-  the mapping fixes it, then long-press MAP to save, or the old amounts come back at the next
-  load. (v2 flipped the V/Oct input because of this. The input itself is fine; v3 undoes it.)
+- **CVs that worked upside down after a save** (fixed in v5, any mode): this was a bug
+  in the stock patch. Settings are saved as MIDI pitch bend, which stops at +8191, and a
+  value of exactly 1.0 was sent as +8192, which wraps around and loads back as -1.0. The
+  Cutoff and Tune CV amounts are 1.0 by default (and clearing the map sets them back to
+  1.0), so every save inverted them. v5 saves 1.0 as +8191 and reads files saved the old
+  way correctly, so no clearing is needed. (v2 flipped the V/Oct input because of this
+  before the cause was known; v3 undid it.)
 - **Range:** in tune from ~20 Hz to ~3 kHz. Poles that would go past those limits drop
   or rise an octave.
 

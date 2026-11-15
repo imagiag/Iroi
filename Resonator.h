@@ -445,8 +445,11 @@ public:
 
         if (voct_)
         {
-            // Tune knob: C0..C4 at 0 V (C2 at noon), plus the CV in semitones.
-            float note = kVoctCenterNote + (t - 0.5f) * kVoctKnobRange + patchCvs_->resonatorVoct;
+            // Tune knob: ±1 octave around C2 (at 0 V), fine near noon and coarser
+            // towards the ends, plus the CV in semitones.
+            float u = 2.f * (t - 0.5f);
+            CONSTRAIN(u, -1.f, 1.f);
+            float note = kVoctCenterNote + kVoctKnobRange * (0.5f * u + 0.5f * u * u * u) + patchCvs_->resonatorVoct;
             SetVoctNotes(note, patchCtrls_->resonatorDissonance, size);
         }
 
