@@ -25,6 +25,8 @@ that modulates Resonator Tune/Feedback).
 - **What changes in V/Oct mode:** the CV no longer modulates Feedback (it's the pitch
   now), and the CV amounts for Tune/Feedback are ignored. MOD and random still work
   on Tune. Feedback, Volume and everything else behave as before.
+- **Polarity:** the module's CV inputs read inverted (higher voltage = lower value; the
+  stock filter cutoff CV closes the filter as the voltage rises), so V/Oct flips it (v2).
 - **Range:** in tune from ~20 Hz to ~3 kHz. Poles that would go past those limits drop
   or rise an octave.
 
