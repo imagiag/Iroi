@@ -5,3 +5,4 @@ Send one .syx with the OWL web tool (see TWEAKS.md). To go back to stock, send i
 | Build | File | Date | Code | What it adds |
 |---|---|---|---|---|
 | v1 | iroi-v1-resonator-voct.syx | 2026-11-14 | d52218e | Resonator follows V/Oct: SHIFT + Resonator Feedback, left half original, right half V/Oct (position = scale trim, 3 o'clock nominal) |
+| v2 | iroi-v2-voct-polarity.syx | 2026-11-15 | 17b8727 | V/Oct follows the right way up (CV inputs read inverted on the module); 0 V reference mirrored to ~0.70 |
